@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  Id              Int    @id @default(autoincrement())
+  Name            String @db.VarChar(45)
+  Email           String @unique(map: "Email_UNIQUE") @db.VarChar(255)
+  Password        String @db.VarChar(45)
+  EducationTypeId Int
+  GradeId         Int
+  Grade           Grade  @relation(fields: [GradeId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "fk_ClientGradeId")
+
+  @@index([GradeId], map: "fk_ClientGradeId_idx")
+}
+
+model EducationType {
+  Id    Int     @id @default(autoincrement())
+  Name  String  @unique(map: "Name_UNIQUE") @db.VarChar(45)
+  Grade Grade[]
+}
+
+model Grade {
+  Id              Int           @id @default(autoincrement())
+  Name            String        @db.VarChar(45)
+  EducationTypeId String        @db.VarChar(45)
+  EducationType   EducationType @relation(fields: [EducationTypeId], references: [Name], onUpdate: Restrict, map: "fk_GradeEducationTypeId")
+  Client          Client[]
+
+  @@index([EducationTypeId], map: "fk_GradeEducationType_idx")
+}
